@@ -1,8 +1,12 @@
-package object_oriented_design;
+package service;
 
 import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
+
+import db.Database;
+import model.User;
+import security.PasswordHasher;
 
 public class UserService {
 

@@ -1,4 +1,4 @@
-package object_oriented_design;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import service.SignupService;
 
 public class SignupUI extends JFrame {
 	private BaseFrame baseframe;

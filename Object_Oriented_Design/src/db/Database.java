@@ -1,4 +1,4 @@
-package object_oriented_design;
+package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,6 +9,9 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 import javax.swing.JOptionPane;
+
+import model.Admin;
+import model.User;
 
 public class Database {
 

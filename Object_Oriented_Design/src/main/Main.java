@@ -1,6 +1,10 @@
-package object_oriented_design;
+package main;
 
 import javax.swing.SwingUtilities;
+
+import gui.LoginUI;
+import service.AdminService;
+import service.UserService;
 
 public class Main {
 

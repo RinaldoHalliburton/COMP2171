@@ -1,10 +1,14 @@
-package object_oriented_design;
+package service;
 
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
+
+import model.User;
+import security.EmailVerificationService;
+import security.PasswordHasher;
 
 public class SignupService {
 	private UserService userservice;

@@ -1,4 +1,4 @@
-package object_oriented_design;
+package service;
 
 import java.sql.SQLException;
 

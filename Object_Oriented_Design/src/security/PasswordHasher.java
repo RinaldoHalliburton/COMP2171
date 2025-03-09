@@ -1,4 +1,4 @@
-package object_oriented_design;
+package security;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
