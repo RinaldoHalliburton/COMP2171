@@ -7,6 +7,7 @@ import service.AdminService;
 import service.UserService;
 
 public class Main {
+
 	public static void main(String[] args) {
 
 		// Initialize the services

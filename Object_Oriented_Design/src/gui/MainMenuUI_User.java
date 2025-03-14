@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+import security.PasswordHasher;
 import service.AdminService;
 import service.UserService;
 
@@ -21,11 +22,13 @@ public class MainMenuUI_User extends JFrame {
 	private JFrame frame;
 	private JButton logoutButton, paymentButton, selectBikeButton, deleteAccountButton, reportButton, rateButton;
 	private UserService us;
+	private PasswordHasher ps;
 
 	public MainMenuUI_User() {
 		this.baseframe = new BaseFrame();
 		this.frame = baseframe.Frame(this);
 		this.us = new UserService();
+		this.ps = new PasswordHasher();
 		setupUI();
 
 		logoutButton.addActionListener(e -> {
@@ -47,6 +50,14 @@ public class MainMenuUI_User extends JFrame {
 		selectBikeButton.addActionListener(e -> {
 			try {
 				handleSelectBike();
+			} catch (HeadlessException e1) {
+				e1.printStackTrace();
+			}
+		});
+
+		deleteAccountButton.addActionListener(e -> {
+			try {
+				handleDelete();
 			} catch (HeadlessException e1) {
 				e1.printStackTrace();
 			}
@@ -123,6 +134,24 @@ public class MainMenuUI_User extends JFrame {
 		} else {
 			frame.setVisible(false);
 			new SelectBikeUI(this.frame);
+		}
+
+	}
+
+	private void handleDelete() {
+		String password = JOptionPane.showInputDialog(null, "Enter password", "Delete Account",
+				JOptionPane.QUESTION_MESSAGE);
+		if (password == null || password.trim().isEmpty()) {
+			return;
+		}
+
+		if (ps.compareHash(password, us.getUserSessionPassword())) {
+			us.removeUser();
+			frame.dispose();
+			new LoginUI(new UserService(), new AdminService());
+		} else {
+			JOptionPane.showMessageDialog(null, "Password incorrect", "Delete Failed", JOptionPane.INFORMATION_MESSAGE);
+			return;
 		}
 
 	}

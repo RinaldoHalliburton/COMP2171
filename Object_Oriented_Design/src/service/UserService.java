@@ -15,6 +15,7 @@ public class UserService {
 	public static int userSessionID;
 	public static int userSessionPayment;
 	private static int useriSLinked;
+	private static String userSessionPassword;
 
 	public UserService() {
 		this.db = new Database();
@@ -33,6 +34,7 @@ public class UserService {
 		try {
 			User user = db.getUserByID(userID);
 			if (user != null && hasher.compareHash(password, user.getPassword())) {
+				UserService.userSessionPassword = user.getPassword();
 				return true;
 			}
 		} catch (SQLException e) {
@@ -54,6 +56,10 @@ public class UserService {
 			JOptionPane.showMessageDialog(null, "User registration failed!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
+	}
+
+	public void removeUser() {
+		db.deleteUser(userSessionID);
 	}
 
 	public void setSessionID(int id) {
@@ -78,5 +84,9 @@ public class UserService {
 
 	public int getUserisLinked() {
 		return UserService.useriSLinked;
+	}
+
+	public String getUserSessionPassword() {
+		return UserService.userSessionPassword;
 	}
 }

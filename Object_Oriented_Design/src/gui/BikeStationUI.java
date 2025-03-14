@@ -3,7 +3,6 @@ package gui;
 import java.awt.Color;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,7 +28,9 @@ public class BikeStationUI extends JFrame {
 	private JPanel mainPanel;
 	private UserService userService;
 	private String currentStation;
-	JButton backButton, linkButton, unlinkButton;
+	private JButton backButton, linkButton, unlinkButton;
+	private String bikeStation;
+	private ArrayList<String> bikesInStation;
 
 	public BikeStationUI(JFrame previousFrame) {
 		this.baseframe = new BaseFrame();
@@ -37,6 +38,7 @@ public class BikeStationUI extends JFrame {
 		this.bikeservice = new BikeService();
 		this.selectBikeUI = previousFrame;
 		this.userService = new UserService();
+		this.bikesInStation = new ArrayList<String>();
 		setupUI();
 		// loadTable();
 		backButton.addActionListener(e -> {
@@ -100,7 +102,7 @@ public class BikeStationUI extends JFrame {
 	public void loadTable(String station) {
 
 		ArrayList<String> lst = bikeservice.getBikes(station);
-		lst.sort(Comparator.comparingInt(s -> Integer.parseInt(s.split("-")[0])));
+		// lst.sort(Comparator.comparingInt(s -> Integer.parseInt(s.split("-")[0])));
 		currentStation = station;
 
 		if (lst == null || lst.isEmpty()) {
@@ -110,13 +112,16 @@ public class BikeStationUI extends JFrame {
 
 		// Clear existing rows before loading new ones
 		tableModel.setRowCount(0);
+		// tableColumns = null;
 
 		for (String bike : lst) {
-			String[] parts = bike.split("-", 2);
+			String[] tableColumn = bike.split("-", 2);
+			bikesInStation.add(tableColumn[0]);
 
-			if (parts.length == 2) { // Prevents ArrayIndexOutOfBoundsException
+			if (tableColumn.length == 2) { // Prevents ArrayIndexOutOfBoundsException
 				SwingUtilities.invokeLater(() -> {
-					tableModel.addRow(new Object[] { parts[0], parts[1] });
+					tableModel.addRow(new Object[] { tableColumn[0], tableColumn[1] });
+					// bikeStation = parts[2];
 				});
 			} else {
 				System.out.println("⚠️ Skipping invalid entry: " + bike);
@@ -136,15 +141,27 @@ public class BikeStationUI extends JFrame {
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		if (userService.getUserisLinked() == 0) {
+		int acceptCharge = JOptionPane.showConfirmDialog(null, "The charge is 35JMD/minute. Do you accept?", "Payment",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		if (userService.getUserisLinked() == 0 && acceptCharge == JOptionPane.YES_OPTION) {
 
-			String bikeID = JOptionPane.showInputDialog(null, "Enter Bike ID:", "Link a Bikes",
+			String bikeID = JOptionPane.showInputDialog(null, "Enter Bike ID:", "Link a Bike",
 					JOptionPane.QUESTION_MESSAGE);
 			if (bikeID == null || bikeID.trim().isEmpty()) {
 				return;
 			}
-			bikeservice.inUse(bikeID);
-			loadTable(currentStation);
+			if (bikesInStation.contains(bikeID)) {
+				bikeservice.inUse(bikeID);
+				for (int i = 0; i < tableModel.getRowCount(); i++) {
+					if (tableModel.getValueAt(i, 0).equals(bikeID)) { // Check if ID matches
+						tableModel.removeRow(i);
+						return; // Exit after removing the row
+					}
+				}
+			} else {
+				JOptionPane.showMessageDialog(null, "Bike not found.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 
 		}
 
@@ -154,6 +171,9 @@ public class BikeStationUI extends JFrame {
 		if (bikeservice.getlinkedBike() != null) {
 			bikeservice.notInUse(currentStation);
 			loadTable(currentStation);
+		} else {
+			JOptionPane.showMessageDialog(null, "Link a bike first", "No bike linked", JOptionPane.INFORMATION_MESSAGE);
+			return;
 		}
 	}
 

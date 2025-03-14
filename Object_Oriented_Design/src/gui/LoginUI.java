@@ -173,7 +173,7 @@ public class LoginUI extends JFrame {
 				new MainMenuUI_User();
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "Invalid credentials!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Account does not exist", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 	}

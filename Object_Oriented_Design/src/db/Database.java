@@ -142,11 +142,6 @@ public class Database {
 	public ArrayList<String> fetchBikes(String station) {
 		ArrayList<String> bikeList = new ArrayList<>();
 
-		if (conn == null) {
-			System.err.println("Cannot fetch bikes: Database connection is null.");
-			return bikeList; // Return empty list instead of crashing
-		}
-
 		String query = "SELECT bikeID, rating FROM bike WHERE station = ? AND inUse = ?;";
 
 		try (PreparedStatement stmt = conn.prepareStatement(query)) { // Use PreparedStatement
@@ -286,7 +281,7 @@ public class Database {
 		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 		// SQL queries
-		String updateBikeQuery = "UPDATE bike SET inUse = 1 WHERE bikeID = ?";
+		String updateBikeQuery = "UPDATE bike SET inUse = 1, station = ? WHERE bikeID = ?";
 		String updateUserQuery = "UPDATE user SET isLinked = 1 WHERE userID = ?";
 		String insertHistoryQuery = "INSERT INTO history (userID, bikeID, linkTime) VALUES (?, ?, ?)";
 
@@ -294,7 +289,9 @@ public class Database {
 				PreparedStatement updateUserStmt = conn.prepareStatement(updateUserQuery);
 				PreparedStatement insertHistoryStmt = conn.prepareStatement(insertHistoryQuery)) {
 			// Update bike table (set inUse = 1)
-			updateBikeStmt.setInt(1, intID);
+
+			updateBikeStmt.setString(1, null);
+			updateBikeStmt.setInt(2, intID);
 			int bikeUpdatedRows = updateBikeStmt.executeUpdate();
 
 			if (bikeUpdatedRows > 0) {
@@ -371,6 +368,26 @@ public class Database {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "❌ Error updating database: " + e.getMessage(), "Database Error",
 					JOptionPane.ERROR_MESSAGE);
+		}
+
+	}
+
+	public void deleteUser(int userId) {
+		String deleteQuery = "DELETE FROM user WHERE userID = ?";
+
+		try (PreparedStatement preparedStatement = conn.prepareStatement(deleteQuery)) {
+			preparedStatement.setInt(1, userId);
+
+			int rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected > 0) {
+				System.out.println("User with ID " + userId + " deleted successfully.");
+				JOptionPane.showMessageDialog(null, "Account sucessfully deleted", "Account Deleted",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Error deleting user: " + e.getMessage());
 		}
 	}
 }
