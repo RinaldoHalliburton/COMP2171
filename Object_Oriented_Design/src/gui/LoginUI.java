@@ -36,11 +36,15 @@ public class LoginUI extends JFrame {
 	private JFrame frame;
 	private BaseFrame baseframe;
 	private SignupUI signupUI;
+	private UserService userService;
+	private AdminService adminService;
 
 	public LoginUI(UserService userService, AdminService adminService) {
 		this.loginService = new LoginService(userService, adminService);
 		this.frame = new JFrame();
 		this.baseframe = new BaseFrame();
+		this.userService = userService;
+		this.adminService = adminService;
 		// Initialize UI components (idText, passwordText, loginButton, etc.)
 		setupUI();
 
@@ -137,9 +141,15 @@ public class LoginUI extends JFrame {
 	}
 
 	private void handleLogin() throws HeadlessException, SQLException {
-		String id = idField.getText();
+		String id = idField.getText().trim();
 		String password = new String(passwordField.getPassword());
+		int idInt = 0;
 		boolean isAdmin = adminCheckBox.isSelected();
+		try {
+			idInt = Integer.parseInt(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		if (id.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Please enter both ID and password.", "Input Error",
@@ -156,10 +166,11 @@ public class LoginUI extends JFrame {
 				isAdmin = false;
 			} else {
 				// Open User page
-				System.out.println("User can login");
 				idField.setText("");
 				passwordField.setText("");
-				return;
+				frame.dispose();
+				userService.setSessionID(idInt);
+				new MainMenuUI_User();
 			}
 		} else {
 			JOptionPane.showMessageDialog(this, "Invalid credentials!", "Error", JOptionPane.ERROR_MESSAGE);

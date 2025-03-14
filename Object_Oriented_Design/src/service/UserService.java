@@ -12,6 +12,9 @@ public class UserService {
 
 	private Database db;
 	private PasswordHasher hasher;
+	public static int userSessionID;
+	public static int userSessionPayment;
+	private static int useriSLinked;
 
 	public UserService() {
 		this.db = new Database();
@@ -51,5 +54,29 @@ public class UserService {
 			JOptionPane.showMessageDialog(null, "User registration failed!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
+	}
+
+	public void setSessionID(int id) {
+		UserService.userSessionID = id;
+	}
+
+	public int getSessionID() {
+		return UserService.userSessionID;
+	}
+
+	public void setSessionPayment(int id) {
+		UserService.userSessionPayment = id;
+	}
+
+	public int getSessionPayment() {
+		return UserService.userSessionPayment;
+	}
+
+	public void setUserisLinked(int useriSLinked) {
+		UserService.useriSLinked = useriSLinked;
+	}
+
+	public int getUserisLinked() {
+		return UserService.useriSLinked;
 	}
 }

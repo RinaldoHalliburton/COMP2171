@@ -29,7 +29,7 @@ public class SignupUI extends JFrame {
 	private JTextField idField;
 	private JPasswordField passwordField;
 	private JButton confirmButton;
-	private JFrame previousFrame;
+	private JFrame loginFrame;
 
 	public SignupUI(JFrame previousFrame) {
 		this.frame = new JFrame();
@@ -37,7 +37,7 @@ public class SignupUI extends JFrame {
 		this.frame = baseframe.Frame(this.frame);
 		this.signupService = new SignupService();
 		this.mainPanel = new JPanel();
-		this.previousFrame = previousFrame;
+		this.loginFrame = previousFrame;
 		setup();
 		confirmButton.addActionListener(e -> {
 			try {
@@ -52,7 +52,7 @@ public class SignupUI extends JFrame {
 
 	}
 
-	public void setup() {
+	private void setup() {
 
 		// Set the frame layout to BorderLayout to place the GIF at the top
 		frame.setLayout(new BorderLayout());
@@ -140,11 +140,11 @@ public class SignupUI extends JFrame {
 	}
 
 	private void handleConfirm() throws SQLException {
-		String nameF = firstNameField.getText();
-		String nameL = lastNameField.getText();
-		String id = idField.getText();
+		String nameF = firstNameField.getText().trim();
+		String nameL = lastNameField.getText().trim();
+		String id = idField.getText().trim();
 		String password = new String(passwordField.getPassword());
-		String email = emailField.getText();
+		String email = emailField.getText().trim();
 		if (nameF.isEmpty() || nameL.isEmpty() || id.isEmpty() || password.isEmpty() || email.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Please enter all fields.", "Input Error", JOptionPane.WARNING_MESSAGE);
 			return;
@@ -158,8 +158,8 @@ public class SignupUI extends JFrame {
 				idField.setText("");
 				emailField.setText("");
 				passwordField.setText("");
-				this.frame.setVisible(false);
-				previousFrame.setVisible(true);
+				this.frame.dispose();
+				loginFrame.setVisible(true);
 
 			}
 
