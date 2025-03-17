@@ -9,10 +9,12 @@ public class BikeService {
 	private Database db;
 	private UserService us;
 	private static String linkedBike = null;
+	private int userID;
 
 	public BikeService() {
 		this.db = new Database();
 		this.us = new UserService();
+		this.userID = us.getSessionID();
 	}
 
 	public ArrayList<String> getBikes(String station) {
@@ -20,14 +22,16 @@ public class BikeService {
 
 	}
 
-	public void inUse(String id) {
-		BikeService.linkedBike = id;
-		System.out.println(BikeService.linkedBike);
-		db.linkBike(id);
+	public void inUse(String bikeID) {
+		BikeService.linkedBike = bikeID;
+		db.linkBike(bikeID, userID);
+		us.setUserisLinked(1);
 	}
 
 	public void notInUse(String currentStation) {
-		db.unlinkBike(BikeService.linkedBike, currentStation);
+		db.unlinkBike(BikeService.linkedBike, currentStation, userID);
+		us.setUserisLinked(0);
+		setlinkedBiketoNull();
 	}
 
 	public String getlinkedBike() {

@@ -81,7 +81,7 @@ public class SignupService {
 			throws SQLException {
 		if (isValidID(id) && isValidPassword(password) && isValidEmail(email)) {
 			password = hasher.toHash(password);
-			User user = new User(id, firstname, lastname, email, password);
+			user = new User(id, firstname, lastname, email, password);
 			return userservice.addUser(user);
 
 		} else {

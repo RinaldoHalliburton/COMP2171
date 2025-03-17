@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 
 import model.Admin;
 import model.User;
-import service.BikeService;
 import service.UserService;
 
 public class Database {
@@ -263,7 +262,7 @@ public class Database {
 		}
 	}
 
-	public void linkBike(String id) {
+	public void linkBike(String id, int userID) {
 		int intID;
 
 		try {
@@ -273,9 +272,6 @@ public class Database {
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-
-		// Get the current user ID (assuming UserService manages sessions)
-		int userID = new UserService().getSessionID();
 
 		// Get current timestamp
 		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -296,7 +292,7 @@ public class Database {
 
 			if (bikeUpdatedRows > 0) {
 				// Update user table (set isLinked = 1)
-				new UserService().setUserisLinked(1);
+				// new UserService().setUserisLinked(1);
 				updateUserStmt.setInt(1, userID);
 				updateUserStmt.executeUpdate();
 
@@ -320,11 +316,10 @@ public class Database {
 		}
 	}
 
-	public void unlinkBike(String bikeID, String currentStation) {
+	public void unlinkBike(String bikeID, String currentStation, int userID) {
 		// Get current user ID (assuming UserService manages sessions)
-		int userID = new UserService().getSessionID();
 
-		// Get current timestamp
+		// Get current time stamp
 		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 		// SQL queries
@@ -342,8 +337,6 @@ public class Database {
 
 			if (bikeUpdatedRows > 0) {
 				// Update user table (set isLinked = 0)
-				new UserService().setUserisLinked(0);
-				new BikeService().setlinkedBiketoNull();
 				updateUserStmt.setInt(1, userID);
 				updateUserStmt.executeUpdate();
 
