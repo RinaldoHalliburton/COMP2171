@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import model.Admin;
 import model.User;
 import service.UserService;
@@ -32,19 +30,12 @@ public class Database {
 
 			// Establish connection
 			conn = DriverManager.getConnection(url, username, password);
-			// System.out.println("✅ Connected to database!");
 		} catch (Exception e) {
 			e.printStackTrace();
-			// System.out.println("❌ Database connection failed!");
+			System.out.println("Database connection failed!");
 		}
 
 	}
-
-	// Execute a SELECT query and return ResultSet
-	/*
-	 * public ResultSet executeQuery(String query) throws SQLException { Statement
-	 * stmt = conn.createStatement(); return stmt.executeQuery(query); }
-	 */
 
 	// Get user by ID
 	public User getUserByID(int ID) throws SQLException {
@@ -96,16 +87,12 @@ public class Database {
 		} catch (SQLIntegrityConstraintViolationException e) {
 			// Catch MySQL duplicate entry error (Error Code 1062)
 			if (e.getErrorCode() == 1062) {
-				System.out.println("❌ Error: Duplicate entry. User ID or Email already exists.");
-				JOptionPane.showMessageDialog(null, "❌ Error: Duplicate entry. User ID or Email already exists.",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("Error: Duplicate entry. User ID or Email already exists.");
 			} else {
-				System.out.println("❌ SQL Integrity Error: " + e.getMessage());
-				JOptionPane.showMessageDialog(null, "❌ SQL Integrity Error", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("SQL Integrity Error: " + e.getMessage());
 			}
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "❌ Database Error", "Error", JOptionPane.ERROR_MESSAGE);
-			System.out.println("❌ Database Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 		return false; // Return false if insertion fails due to a duplicate or SQL error
 	}
@@ -131,8 +118,6 @@ public class Database {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error fetching data from database", "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
 
 		return paymentList;
@@ -157,14 +142,12 @@ public class Database {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error fetching data from database", "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
 
 		return bikeList;
 	}
 
-	public void deletePaymentMethod(String name, String cardNumber, int id) {
+	public boolean deletePaymentMethod(String name, String cardNumber, int id) {
 		String deleteQuery = "DELETE FROM payment " + "WHERE userID = ? AND cardName = ? AND cardNumber = ?";
 
 		String checkQuery = "SELECT COUNT(*) FROM payment WHERE userID = ?";
@@ -178,8 +161,6 @@ public class Database {
 			int rowsAffected = stmt.executeUpdate();
 
 			if (rowsAffected > 0) {
-				System.out.println("✅ Successfully deleted " + rowsAffected + " payment record(s).");
-
 				try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
 					checkStmt.setInt(1, id);
 					ResultSet rs = checkStmt.executeQuery();
@@ -190,21 +171,19 @@ public class Database {
 							int updateRows = updateStmt.executeUpdate();
 							new UserService().setSessionPayment(0);
 							if (updateRows > 0) {
-								System.out.println("✅ `hasPayment` set to 0 for user ID: " + id);
+								return true;
 							}
 						}
 					}
 				}
-			} else {
-				System.out.println("⚠️ No matching payment records found for deletion.");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("❌ Error deleting payment record: " + e.getMessage());
 		}
+		return false;
 	}
 
-	public void insertPaymentMethod(String name, int id, String cardNumber, String cvv, String date) {
+	public boolean insertPaymentMethod(String name, int id, String cardNumber, String cvv, String date) {
 		String checkDuplicateQuery = "SELECT COUNT(*) FROM payment WHERE userID = ? AND cardNumber = ?";
 		String insertQuery = "INSERT INTO payment (cardName, cardNumber, cvv, expDate, userID) VALUES (?, ?, ?, ?, ?)";
 		String updateUserQuery = "UPDATE user SET hasPayment = 1 WHERE userID = ?";
@@ -214,16 +193,11 @@ public class Database {
 			checkStmt.setString(2, cardNumber);
 
 			ResultSet rs = checkStmt.executeQuery();
-			if (rs.next() && rs.getInt(1) > 0) { // If card number already exists for the user
-				JOptionPane.showMessageDialog(null, "❌ Duplicate Card Number! This card is already registered.",
-						"Error", JOptionPane.ERROR_MESSAGE);
-				return; // Stop execution, do not insert
+			if (rs.next() && rs.getInt(1) > 0) {
+				return false;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "❌ Database Error: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
 		}
 
 		// If no duplicate, proceed with the insert
@@ -237,43 +211,31 @@ public class Database {
 			int rowsAffected = stmt.executeUpdate();
 
 			if (rowsAffected > 0) {
-				JOptionPane.showMessageDialog(null, "✅ Payment Method Added Successfully!", "Success",
-						JOptionPane.INFORMATION_MESSAGE);
-
-				// ✅ Set Session Payment after successful insert
-				new UserService().setSessionPayment(id);
 
 				try (PreparedStatement updateStmt = conn.prepareStatement(updateUserQuery)) {
 					updateStmt.setInt(1, id);
 					int updateRows = updateStmt.executeUpdate();
 					if (updateRows > 0) {
-						System.out.println("✅ `hasPayment` set to 1 for user ID: " + id);
+						return true;
 					}
 				}
-
-				System.out.println("✅ Payment Added: " + id + " - " + cardNumber);
-			} else {
-				JOptionPane.showMessageDialog(null, "⚠️ Failed to Add Payment!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "❌ Database Error: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
+		return false;
 	}
 
-	public void linkBike(String id, int userID) {
-		int intID;
+	public boolean linkBike(String id, int userID) {
+		int intID = 0;
 
 		try {
 			intID = Integer.parseInt(id);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "❌ Enter a valid Integer: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
+			e.printStackTrace();
 		}
 
-		// Get current timestamp
+		// Get current time stamp
 		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 		// SQL queries
@@ -291,8 +253,6 @@ public class Database {
 			int bikeUpdatedRows = updateBikeStmt.executeUpdate();
 
 			if (bikeUpdatedRows > 0) {
-				// Update user table (set isLinked = 1)
-				// new UserService().setUserisLinked(1);
 				updateUserStmt.setInt(1, userID);
 				updateUserStmt.executeUpdate();
 
@@ -301,23 +261,17 @@ public class Database {
 				insertHistoryStmt.setInt(2, intID);
 				insertHistoryStmt.setString(3, currentTime);
 				insertHistoryStmt.executeUpdate();
-
-				JOptionPane.showMessageDialog(null, "✅ Bike " + intID + " linked successfully!", "Success",
-						JOptionPane.INFORMATION_MESSAGE);
-			} else {
-				JOptionPane.showMessageDialog(null, "❌ No bike found with ID: " + intID, "Error",
-						JOptionPane.ERROR_MESSAGE);
+				return true;
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "❌ Error updating database: " + e.getMessage(), "Database Error",
-					JOptionPane.ERROR_MESSAGE);
+
 		}
+		return false;
 	}
 
-	public void unlinkBike(String bikeID, String currentStation, int userID) {
-		// Get current user ID (assuming UserService manages sessions)
+	public boolean unlinkBike(String bikeID, String currentStation, int userID) {
 
 		// Get current time stamp
 		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -345,27 +299,18 @@ public class Database {
 				updateHistoryStmt.setInt(2, userID);
 				updateHistoryStmt.setInt(3, Integer.parseInt(bikeID));
 				updateHistoryStmt.executeUpdate();
+				return true;
 
-				// Notify user of success
-				JOptionPane.showMessageDialog(null, "✅ Bike " + bikeID + " unlinked successfully!", "Success",
-						JOptionPane.INFORMATION_MESSAGE);
-
-				// Update user status to reflect the unlinking
-				new UserService().setUserisLinked(0);
-			} else {
-				JOptionPane.showMessageDialog(null, "❌ No bike found with ID: " + bikeID, "Error",
-						JOptionPane.ERROR_MESSAGE);
 			}
-
 		} catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "❌ Error updating database: " + e.getMessage(), "Database Error",
-					JOptionPane.ERROR_MESSAGE);
+
 		}
+		return false;
 
 	}
 
-	public void deleteUser(int userId) {
+	public boolean deleteUser(int userId) {
 		String deleteQuery = "DELETE FROM user WHERE userID = ?";
 
 		try (PreparedStatement preparedStatement = conn.prepareStatement(deleteQuery)) {
@@ -373,14 +318,11 @@ public class Database {
 
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
-				System.out.println("User with ID " + userId + " deleted successfully.");
-				JOptionPane.showMessageDialog(null, "Account sucessfully deleted", "Account Deleted",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
+				return true;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("Error deleting user: " + e.getMessage());
 		}
+		return false;
 	}
 }

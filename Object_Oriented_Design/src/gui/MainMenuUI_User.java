@@ -128,7 +128,7 @@ public class MainMenuUI_User extends JFrame {
 
 	private void handleSelectBike() {
 
-		if (new UserService().getSessionPayment() == 0) {
+		if (us.getSessionPayment() == 0) {
 			JOptionPane.showMessageDialog(null, "Add a payment first", "Payment Needed",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else {
@@ -145,8 +145,11 @@ public class MainMenuUI_User extends JFrame {
 			return;
 		}
 
-		if (ps.compareHash(password, us.getUserSessionPassword())) {
-			us.removeUser();
+		boolean val = us.removeUser();
+
+		if (ps.compareHash(password, us.getUserSessionPassword()) && val) {
+			JOptionPane.showMessageDialog(null, "User deleted successfully.", "User Deleted",
+					JOptionPane.INFORMATION_MESSAGE);
 			frame.dispose();
 			new LoginUI(new UserService(), new AdminService());
 		} else {

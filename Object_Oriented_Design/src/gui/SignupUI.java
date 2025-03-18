@@ -160,7 +160,11 @@ public class SignupUI extends JFrame {
 				passwordField.setText("");
 				this.frame.dispose();
 				loginFrame.setVisible(true);
+				JOptionPane.showMessageDialog(null, "User registered successfully!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
 
+			} else {
+				JOptionPane.showMessageDialog(null, "User registration failed!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 
 		} catch (NumberFormatException e) {

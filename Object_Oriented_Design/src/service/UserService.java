@@ -2,8 +2,6 @@ package service;
 
 import java.sql.SQLException;
 
-import javax.swing.JOptionPane;
-
 import db.Database;
 import model.User;
 import security.PasswordHasher;
@@ -27,7 +25,7 @@ public class UserService {
 		try {
 			userID = Integer.parseInt(id);
 		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(null, "Invalid User ID format!", "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 			return false;
 		}
 
@@ -38,28 +36,18 @@ public class UserService {
 				return true;
 			}
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "Database error: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 		}
 		return false;
 	}
 
-	public boolean addUser(User user) throws SQLException {
+	public boolean addUser(User user) {
 		boolean addSuccess = db.insertUser(user);
-		if (addSuccess) {
-
-			JOptionPane.showMessageDialog(null, "User registered successfully!", "Success",
-					JOptionPane.INFORMATION_MESSAGE);
-
-			return true;
-		} else {
-			JOptionPane.showMessageDialog(null, "User registration failed!", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-		return false;
+		return addSuccess;
 	}
 
-	public void removeUser() {
-		db.deleteUser(userSessionID);
+	public boolean removeUser() {
+		return db.deleteUser(userSessionID);
 	}
 
 	public void setSessionID(int id) {
@@ -70,8 +58,8 @@ public class UserService {
 		return UserService.userSessionID;
 	}
 
-	public void setSessionPayment(int id) {
-		UserService.userSessionPayment = id;
+	public void setSessionPayment(int value) {
+		UserService.userSessionPayment = value;
 	}
 
 	public int getSessionPayment() {

@@ -85,9 +85,8 @@ public class SignupService {
 			return userservice.addUser(user);
 
 		} else {
-			JOptionPane.showMessageDialog(null,
-					"Invalid credentials: Enter valid UWI ID and a valid email. Password should have upper and lower case, at least 1 digit and a special character. Length 8 - 20 ",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Invalid credentials: Enter valid details", "Error",
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 

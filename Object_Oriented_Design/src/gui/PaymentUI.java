@@ -151,10 +151,6 @@ public class PaymentUI extends JFrame {
 		frame.setVisible(true);
 	}
 
-	/*
-	 * public static void main(String[] args) { new PaymentGUI(mainMenuFrame); }
-	 */
-
 	private void handleBack() {
 		frame.dispose();
 		mainMenuFrame.setVisible(true);
@@ -176,7 +172,15 @@ public class PaymentUI extends JFrame {
 
 		if (confirm == JOptionPane.YES_OPTION) {
 
-			paymentService.removePaymentMethod(name, cardNumber);
+			boolean value = paymentService.removePaymentMethod(name, cardNumber);
+			if (value) {
+				JOptionPane.showMessageDialog(null, "✅ Payment Method Deleted Successfully!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(null, "Payment Method deletion failed!", "Failure",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 			tableModel.removeRow(selectedRow);
 			loadTable();
 
@@ -211,7 +215,14 @@ public class PaymentUI extends JFrame {
 		nameField.setText("");
 		cardField.setText("");
 		cvvField.setText("");
-		paymentService.addPaymentMethod(name, cardNumber, cvv, date);
+		boolean val = paymentService.addPaymentMethod(name, cardNumber, cvv, date);
+		if (val) {
+			JOptionPane.showMessageDialog(null, "✅ Payment Method Added Successfully!", "Success",
+					JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(null, "Payment Method not Added!", "Failure",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
 		loadTable();
 
 	}
@@ -221,7 +232,6 @@ public class PaymentUI extends JFrame {
 		ArrayList<String> lst = paymentService.getPaymentMethod();
 
 		if (lst == null || lst.isEmpty()) {
-			System.out.println("No payment methods found.");
 			return;
 		}
 
@@ -235,8 +245,6 @@ public class PaymentUI extends JFrame {
 				SwingUtilities.invokeLater(() -> {
 					tableModel.addRow(new Object[] { parts[0], parts[1] });
 				});
-			} else {
-				System.out.println("⚠️ Skipping invalid entry: " + payment);
 			}
 		}
 	}

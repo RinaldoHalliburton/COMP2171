@@ -22,14 +22,16 @@ public class PaymentService {
 
 	}
 
-	public void removePaymentMethod(String name, String cardNumber) {
+	public boolean removePaymentMethod(String name, String cardNumber) {
 		this.id = userService.getSessionID();
-		db.deletePaymentMethod(name, cardNumber, id);
+		return db.deletePaymentMethod(name, cardNumber, id);
 	}
 
-	public void addPaymentMethod(String name, String cardNumber, String cvv, String date) {
+	public boolean addPaymentMethod(String name, String cardNumber, String cvv, String date) {
 		this.id = userService.getSessionID();
-		db.insertPaymentMethod(name, id, cardNumber, cvv, date);
+		boolean value = db.insertPaymentMethod(name, id, cardNumber, cvv, date);
+		userService.setSessionPayment(1);
+		return value;
 
 	}
 

@@ -22,16 +22,18 @@ public class BikeService {
 
 	}
 
-	public void inUse(String bikeID) {
+	public boolean inUse(String bikeID) {
 		BikeService.linkedBike = bikeID;
-		db.linkBike(bikeID, userID);
+		boolean value = db.linkBike(bikeID, userID);
 		us.setUserisLinked(1);
+		return value;
 	}
 
-	public void notInUse(String currentStation) {
-		db.unlinkBike(BikeService.linkedBike, currentStation, userID);
+	public boolean notInUse(String currentStation) {
+		boolean val = db.unlinkBike(BikeService.linkedBike, currentStation, userID);
 		us.setUserisLinked(0);
 		setlinkedBiketoNull();
+		return val;
 	}
 
 	public String getlinkedBike() {

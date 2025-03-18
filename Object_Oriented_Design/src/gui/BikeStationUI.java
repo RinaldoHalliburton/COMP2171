@@ -102,7 +102,6 @@ public class BikeStationUI extends JFrame {
 	public void loadTable(String station) {
 
 		ArrayList<String> lst = bikeservice.getBikes(station);
-		// lst.sort(Comparator.comparingInt(s -> Integer.parseInt(s.split("-")[0])));
 		currentStation = station;
 
 		if (lst == null || lst.isEmpty()) {
@@ -112,7 +111,6 @@ public class BikeStationUI extends JFrame {
 
 		// Clear existing rows before loading new ones
 		tableModel.setRowCount(0);
-		// tableColumns = null;
 
 		for (String bike : lst) {
 			String[] tableColumn = bike.split("-", 2);
@@ -121,7 +119,6 @@ public class BikeStationUI extends JFrame {
 			if (tableColumn.length == 2) { // Prevents ArrayIndexOutOfBoundsException
 				SwingUtilities.invokeLater(() -> {
 					tableModel.addRow(new Object[] { tableColumn[0], tableColumn[1] });
-					// bikeStation = parts[2];
 				});
 			} else {
 				System.out.println("⚠️ Skipping invalid entry: " + bike);
@@ -152,6 +149,8 @@ public class BikeStationUI extends JFrame {
 			}
 			if (bikesInStation.contains(bikeID)) {
 				bikeservice.inUse(bikeID);
+				JOptionPane.showMessageDialog(null, "✅ Bike Linked Successfully!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
 				for (int i = 0; i < tableModel.getRowCount(); i++) {
 					if (tableModel.getValueAt(i, 0).equals(bikeID)) { // Check if ID matches
 						tableModel.removeRow(i);
@@ -169,8 +168,13 @@ public class BikeStationUI extends JFrame {
 
 	private void handleUnlink() {
 		if (bikeservice.getlinkedBike() != null) {
-			bikeservice.notInUse(currentStation);
+			boolean value = bikeservice.notInUse(currentStation);
 			loadTable(currentStation);
+			if (value) {
+				JOptionPane.showMessageDialog(null, "Bike sucessfully unlinked", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Link a bike first", "No bike linked", JOptionPane.INFORMATION_MESSAGE);
 			return;
