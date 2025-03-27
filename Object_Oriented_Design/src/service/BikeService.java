@@ -10,11 +10,13 @@ public class BikeService {
 	private UserService us;
 	private static String linkedBike = null;
 	private int userID;
+	private static String previousBike = null;
 
 	public BikeService() {
 		this.db = new Database();
 		this.us = new UserService();
 		this.userID = us.getSessionID();
+		BikeService.linkedBike = getBikeLastBike();
 	}
 
 	public ArrayList<String> getBikes(String station) {
@@ -22,8 +24,17 @@ public class BikeService {
 
 	}
 
+	private String getBikeLastBike() {
+		Integer bike = db.fetchLastUserBike(userID);
+		if (bike == null) {
+			return null;
+		}
+		return bike + "";
+	}
+
 	public boolean inUse(String bikeID) {
 		BikeService.linkedBike = bikeID;
+		BikeService.previousBike = BikeService.linkedBike;
 		boolean value = db.linkBike(bikeID, userID);
 		us.setUserisLinked(1);
 		return value;
@@ -42,6 +53,16 @@ public class BikeService {
 
 	public void setlinkedBiketoNull() {
 		linkedBike = null;
+	}
+
+	public boolean bikeRating(char rating) {
+		int previousBike;
+		if (!(getBikeLastBike() == null)) {
+			previousBike = Integer.parseInt(getBikeLastBike());
+			return db.rateBike(previousBike, this.userID, rating);
+		}
+		return false;
+
 	}
 
 }

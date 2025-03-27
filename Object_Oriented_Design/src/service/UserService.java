@@ -1,6 +1,7 @@
 package service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import db.Database;
 import model.User;
@@ -50,6 +51,10 @@ public class UserService {
 		return db.deleteUser(userSessionID);
 	}
 
+	public boolean removeUser(int userID) {
+		return db.deleteUser(userID);
+	}
+
 	public void setSessionID(int id) {
 		UserService.userSessionID = id;
 	}
@@ -76,5 +81,9 @@ public class UserService {
 
 	public String getUserSessionPassword() {
 		return UserService.userSessionPassword;
+	}
+
+	public ArrayList<User> getUsers() throws SQLException {
+		return db.getAllUsers();
 	}
 }

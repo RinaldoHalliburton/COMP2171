@@ -47,9 +47,25 @@ public class MainMenuUI_User extends JFrame {
 			}
 		});
 
+		rateButton.addActionListener(e -> {
+			try {
+				handleRate();
+			} catch (HeadlessException e1) {
+				e1.printStackTrace();
+			}
+		});
+
 		selectBikeButton.addActionListener(e -> {
 			try {
 				handleSelectBike();
+			} catch (HeadlessException e1) {
+				e1.printStackTrace();
+			}
+		});
+
+		reportButton.addActionListener(e -> {
+			try {
+				handleReport();
 			} catch (HeadlessException e1) {
 				e1.printStackTrace();
 			}
@@ -84,8 +100,8 @@ public class MainMenuUI_User extends JFrame {
 		paymentButton.setBounds(140, 120, 100, 30);
 		mainPanel.add(paymentButton);
 
-		selectBikeButton = new JButton("Select Bike");
-		selectBikeButton.setBounds(140, 200, 100, 30);
+		selectBikeButton = new JButton("Manage Bike");
+		selectBikeButton.setBounds(135, 200, 110, 30);
 		mainPanel.add(selectBikeButton);
 
 		rateButton = new JButton("Rate Bike");
@@ -123,6 +139,20 @@ public class MainMenuUI_User extends JFrame {
 
 		frame.setVisible(false);
 		new PaymentUI(this.frame);
+
+	}
+
+	private void handleRate() {
+
+		frame.setVisible(false);
+		new RatingUI(this.frame);
+
+	}
+
+	private void handleReport() {
+
+		frame.setVisible(false);
+		new ReportUI(this.frame);
 
 	}
 

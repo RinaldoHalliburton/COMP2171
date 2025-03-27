@@ -45,4 +45,8 @@ public class AdminService {
 
 	}
 
+	public boolean removeUser(int userID) {
+		return db.deleteUser(userID);
+	}
+
 }

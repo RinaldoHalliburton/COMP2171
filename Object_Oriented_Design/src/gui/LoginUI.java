@@ -160,10 +160,11 @@ public class LoginUI extends JFrame {
 		if (loginService.login(id, password, isAdmin)) {
 			if (isAdmin) {
 				// Open Admin page
-				System.out.println("Admin can login");
 				idField.setText("");
 				passwordField.setText("");
 				isAdmin = false;
+				frame.dispose();
+				new MainMenuUI_Admin();
 			} else {
 				// Open User page
 				idField.setText("");
