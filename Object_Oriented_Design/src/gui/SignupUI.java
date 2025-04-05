@@ -150,8 +150,8 @@ public class SignupUI extends JFrame {
 			return;
 		}
 		try {
-			Integer.parseInt(id);
-			boolean isAdded = signupService.signup(nameF, nameL, id, password, email);
+			int userID = Integer.parseInt(id);
+			boolean isAdded = signupService.signup(nameF, nameL, userID, password, email);
 			if (isAdded) {
 				firstNameField.setText("");
 				lastNameField.setText("");

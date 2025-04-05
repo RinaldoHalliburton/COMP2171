@@ -3,6 +3,7 @@ package service;
 import java.util.ArrayList;
 
 import db.Database;
+import model.PaymentMethod;
 
 public class PaymentService {
 
@@ -16,7 +17,7 @@ public class PaymentService {
 
 	}
 
-	public ArrayList<String> getPaymentMethod() {
+	public ArrayList<PaymentMethod> getPaymentMethod() {
 		this.id = userService.getSessionID();
 		return db.fetchPaymentMethod(this.id);
 
@@ -27,9 +28,9 @@ public class PaymentService {
 		return db.deletePaymentMethod(name, cardNumber, id);
 	}
 
-	public boolean addPaymentMethod(String name, String cardNumber, String cvv, String date) {
+	public boolean addPaymentMethod(String name, String cardNumber, String cvv, String date, String address) {
 		this.id = userService.getSessionID();
-		boolean value = db.insertPaymentMethod(name, id, cardNumber, cvv, date);
+		boolean value = db.insertPaymentMethod(name, id, cardNumber, cvv, date, address);
 		userService.setSessionPayment(1);
 		return value;
 

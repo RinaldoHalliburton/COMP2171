@@ -18,10 +18,6 @@ public class Bike {
 		return bikeID;
 	}
 
-	public void setBikeID(int bikeID) {
-		this.bikeID = bikeID;
-	}
-
 	public String getRating() {
 		return rating;
 	}

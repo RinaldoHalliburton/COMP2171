@@ -50,10 +50,6 @@ public class Report {
 		return incident;
 	}
 
-	public void setIncident(String incident) {
-		this.incident = incident;
-	}
-
 	public int isStatus() {
 		return status;
 	}

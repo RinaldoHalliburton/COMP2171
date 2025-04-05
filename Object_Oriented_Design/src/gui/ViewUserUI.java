@@ -52,7 +52,7 @@ public class ViewUserUI extends JFrame {
 		IDLabel.setForeground(Color.white);
 		mainPanel.add(IDLabel);
 
-		JLabel ID = new JLabel(user.getId());
+		JLabel ID = new JLabel(user.getId() + "");
 		ID.setBounds(120, 160, 200, 30);
 		ID.setForeground(Color.white);
 		mainPanel.add(ID);
@@ -68,7 +68,7 @@ public class ViewUserUI extends JFrame {
 		mainPanel.add(name);
 
 		JLabel emailLabel = new JLabel("Email:");
-		emailLabel.setBounds(60, 260, 120, 30);
+		emailLabel.setBounds(60, 260, 140, 30);
 		emailLabel.setForeground(Color.white);
 		mainPanel.add(emailLabel);
 

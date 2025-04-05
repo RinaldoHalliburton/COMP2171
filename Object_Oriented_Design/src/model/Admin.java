@@ -1,9 +1,21 @@
 package model;
 
-public class Admin extends User {
+public class Admin {
+	private int id;
+	private String fname;
+	private String lname;
+	private String password;
 
-	public Admin(String id, String fname, String lname, String email, String password) {
-		super(id, fname, lname, email, password);
+	public Admin(int id, String fname, String lname, String password) {
+		this.id = id;
+		this.fname = fname;
+		this.lname = lname;
+		this.password = password;
+
+	}
+
+	public String getPassword() {
+		return this.password;
 	}
 
 }

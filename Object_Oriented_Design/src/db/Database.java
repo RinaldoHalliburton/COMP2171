@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import model.Admin;
+import model.PaymentMethod;
 import model.Report;
 import model.User;
 import service.UserService;
@@ -46,7 +47,7 @@ public class Database {
 			if (result.next()) {
 				new UserService().setSessionPayment(result.getInt(6));
 				new UserService().setUserisLinked(result.getInt(7));
-				return new User(result.getString(1), result.getString(2), result.getString(3), result.getString(4),
+				return new User(result.getInt(1), result.getString(2), result.getString(3), result.getString(4),
 						result.getString(5));
 			}
 		}
@@ -73,7 +74,7 @@ public class Database {
 		String query = "INSERT INTO user (userID, userFirstName, userLastName, userEmail, userPassword) VALUES (?, ?, ?, ?, ?)";
 
 		try (PreparedStatement stmt = conn.prepareStatement(query)) {
-			stmt.setInt(1, Integer.parseInt(user.getId()));
+			stmt.setInt(1, user.getId());
 			stmt.setString(2, user.getFname());
 			stmt.setString(3, user.getLname());
 			stmt.setString(4, user.getEmail());
@@ -106,15 +107,14 @@ public class Database {
 	// ----------------------- ADMIN CRUD -----------------------
 
 	public Admin getAdminByID(int ID) throws SQLException {
-		String query = "SELECT adminID, adminFirstName, adminLastName, adminEmail, adminPassword FROM Admin WHERE adminID = ?";
+		String query = "SELECT adminID, adminFirstName, adminLastName, adminPassword FROM Admin WHERE adminID = ?";
 
 		try (PreparedStatement stmt = conn.prepareStatement(query)) {
 			stmt.setInt(1, ID);
 			ResultSet result = stmt.executeQuery();
 
 			if (result.next()) {
-				return new Admin(result.getString(1), result.getString(2), result.getString(3), result.getString(4),
-						result.getString(5));
+				return new Admin(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
 			}
 		}
 		return null;
@@ -122,10 +122,10 @@ public class Database {
 
 	// ----------------------- PAYMENT CRUD -----------------------
 
-	public ArrayList<String> fetchPaymentMethod(int userID) {
-		ArrayList<String> paymentList = new ArrayList<>();
-		String query = "SELECT payment.cardName, payment.cardNumber FROM user "
-				+ "JOIN payment ON user.userID = payment.userID WHERE user.userID = ?";
+	public ArrayList<PaymentMethod> fetchPaymentMethod(int userID) {
+		ArrayList<PaymentMethod> paymentList = new ArrayList<>();
+		String query = "SELECT payment.cardName, payment.cardNumber, payment.cvv, payment.expDate, payment.address "
+				+ "FROM user JOIN payment ON user.userID = payment.userID WHERE user.userID = ?";
 
 		try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 			pstmt.setInt(1, userID);
@@ -134,7 +134,10 @@ public class Database {
 			while (rs.next()) {
 				String cardName = rs.getString("cardName");
 				String cardNumber = rs.getString("cardNumber");
-				paymentList.add(cardName + "-" + cardNumber);
+				String cvv = rs.getString("cvv");
+				String date = rs.getString("expDate");
+				String address = rs.getString("address");
+				paymentList.add(new PaymentMethod(cardName, cardNumber, cvv, date, address));
 			}
 			rs.close();
 		} catch (SQLException e) {
@@ -143,9 +146,10 @@ public class Database {
 		return paymentList;
 	}
 
-	public boolean insertPaymentMethod(String name, int id, String cardNumber, String cvv, String date) {
+	public boolean insertPaymentMethod(String name, int id, String cardNumber, String cvv, String date,
+			String address) {
 		String checkDuplicateQuery = "SELECT COUNT(*) FROM payment WHERE userID = ? AND cardNumber = ?";
-		String insertQuery = "INSERT INTO payment (cardName, cardNumber, cvv, expDate, userID) VALUES (?, ?, ?, ?, ?)";
+		String insertQuery = "INSERT INTO payment (cardName, cardNumber, cvv, expDate, userID, address) VALUES (?, ?, ?, ?, ?, ?)";
 		String updateUserQuery = "UPDATE user SET hasPayment = 1 WHERE userID = ?";
 
 		try (PreparedStatement checkStmt = conn.prepareStatement(checkDuplicateQuery)) {
@@ -165,6 +169,7 @@ public class Database {
 			stmt.setString(3, cvv);
 			stmt.setString(4, date);
 			stmt.setInt(5, id);
+			stmt.setString(6, address);
 
 			if (stmt.executeUpdate() > 0) {
 				try (PreparedStatement updateStmt = conn.prepareStatement(updateUserQuery)) {

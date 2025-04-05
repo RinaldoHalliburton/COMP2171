@@ -21,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JDateChooser;
 
+import model.PaymentMethod;
 import service.PaymentService;
 
 public class PaymentUI extends JFrame {
@@ -28,7 +29,7 @@ public class PaymentUI extends JFrame {
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JButton deleteButton, backButton, addButton;
-	private JTextField nameField, cardField, cvvField;
+	private JTextField nameField, cardField, cvvField, addressField;
 	private JDateChooser dateChooser;
 	private JPanel mainPanel;
 	private BaseFrame baseframe;
@@ -135,6 +136,20 @@ public class PaymentUI extends JFrame {
 		yearComboBox.setBounds(270, 380, 70, 30);
 		mainPanel.add(yearComboBox);
 
+		JLabel addressLabel = new JLabel("Address:");
+		addressLabel.setBounds(60, 430, 120, 30);
+		addressLabel.setForeground(Color.white);
+		mainPanel.add(addressLabel);
+
+		JLabel streetLabel = new JLabel("Street:");
+		addressLabel.setBounds(60, 430, 120, 30);
+		addressLabel.setForeground(Color.white);
+		mainPanel.add(addressLabel);
+
+		addressField = new JTextField();
+		addressField.setBounds(190, 430, 150, 50);
+		mainPanel.add(addressField);
+
 		// Create table and scroll pane
 		tableModel = new DefaultTableModel(new Object[] { "Name on Card", "Card Number" }, 0);
 		table = new JTable(tableModel);
@@ -195,19 +210,20 @@ public class PaymentUI extends JFrame {
 		String month = (String) monthComboBox.getSelectedItem();
 		int year = (int) yearComboBox.getSelectedItem();
 		String date = month + "/" + year;
+		String address = addressField.getText().trim();
 
 		// Validate Input Fields
-		if (name.isEmpty() || cardNumber.isEmpty() || cvv.isEmpty()) {
+		if (name.isEmpty() || cardNumber.isEmpty() || cvv.isEmpty() || address.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "❌ Please fill all fields!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		if (!cardNumber.matches("\\d{13,19}")) { // Ensure card number is 13-19 digits
+		if (!cardNumber.matches("\\d{16}")) { // Ensure card number is 16 digits
 			JOptionPane.showMessageDialog(null, "❌ Invalid Card Number!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		if (!cvv.matches("\\d{3,4}")) { // Ensure CVV is 3 or 4 digits
+		if (!cvv.matches("\\d{3}")) { // Ensure CVV is 3 digits
 			JOptionPane.showMessageDialog(null, "❌ Invalid CVV!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -215,7 +231,8 @@ public class PaymentUI extends JFrame {
 		nameField.setText("");
 		cardField.setText("");
 		cvvField.setText("");
-		boolean val = paymentService.addPaymentMethod(name, cardNumber, cvv, date);
+		addressField.setText("");
+		boolean val = paymentService.addPaymentMethod(name, cardNumber, cvv, date, address);
 		if (val) {
 			JOptionPane.showMessageDialog(null, "✅ Payment Method Added Successfully!", "Success",
 					JOptionPane.INFORMATION_MESSAGE);
@@ -229,7 +246,7 @@ public class PaymentUI extends JFrame {
 
 	private void loadTable() {
 
-		ArrayList<String> lst = paymentService.getPaymentMethod();
+		ArrayList<PaymentMethod> lst = paymentService.getPaymentMethod();
 
 		if (lst == null || lst.isEmpty()) {
 			return;
@@ -238,14 +255,12 @@ public class PaymentUI extends JFrame {
 		// Clear existing rows before loading new ones
 		tableModel.setRowCount(0);
 
-		for (String payment : lst) {
-			String[] parts = payment.split("-", 2);
+		for (PaymentMethod payment : lst) {
 
-			if (parts.length == 2) { // Prevents ArrayIndexOutOfBoundsException
-				SwingUtilities.invokeLater(() -> {
-					tableModel.addRow(new Object[] { parts[0], parts[1] });
-				});
-			}
+			SwingUtilities.invokeLater(() -> {
+				tableModel.addRow(new Object[] { payment.getName(), payment.getCardNumber() });
+			});
+
 		}
 	}
 }

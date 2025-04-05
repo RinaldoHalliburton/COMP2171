@@ -66,9 +66,6 @@ public class SignupService {
 		// Compile the ReGex
 		Pattern p = Pattern.compile(regex);
 
-		// Pattern class contains matcher() method
-		// to find matching between given password
-		// and regular expression.
 		Matcher m = p.matcher(password);
 
 		// Return if the password
@@ -77,9 +74,9 @@ public class SignupService {
 
 	}
 
-	public boolean signup(String firstname, String lastname, String id, String password, String email)
+	public boolean signup(String firstname, String lastname, int id, String password, String email)
 			throws SQLException {
-		if (isValidID(id) && isValidPassword(password) && isValidEmail(email)) {
+		if (isValidID(id + "") && isValidPassword(password) && isValidEmail(email)) {
 			password = hasher.toHash(password);
 			user = new User(id, firstname, lastname, email, password);
 			return userservice.addUser(user);

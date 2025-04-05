@@ -188,17 +188,16 @@ public class ManageUsersUI extends JFrame {
 		User userObject;
 
 		if (selectedRow == -1) {
-			String user = IDField.getText();
-			if (user == null || user.trim().isEmpty()) {
+			String userIdText = IDField.getText().trim();
+			if (userIdText.isEmpty()) {
 				JOptionPane.showMessageDialog(null, "Please select a row or enter a User ID.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
 			try {
-				Integer.parseInt(user.trim()); // Only used for format checking
-				userObject = findUserByID(userList, user.trim());
-
+				int userId = Integer.parseInt(userIdText);
+				userObject = findUserByID(userList, userId);
 				if (userObject == null) {
 					JOptionPane.showMessageDialog(null, "User not found.", "Error", JOptionPane.ERROR_MESSAGE);
 					IDField.setText("");
@@ -215,7 +214,9 @@ public class ManageUsersUI extends JFrame {
 			Object idValue = tableModel.getValueAt(selectedRow, 0);
 			String id = idValue != null ? idValue.toString() : "";
 
-			userObject = findUserByID(userList, id);
+			int userId = Integer.parseInt(id);
+
+			userObject = findUserByID(userList, userId);
 
 			if (userObject == null) {
 				IDField.setText("");
@@ -229,9 +230,9 @@ public class ManageUsersUI extends JFrame {
 		}
 	}
 
-	private User findUserByID(ArrayList<User> users, String userID) {
+	private User findUserByID(ArrayList<User> users, int userID) {
 		for (User user : users) {
-			if (user.getId().equals(userID)) {
+			if (user.getId() == userID) {
 				return user;
 			}
 		}
